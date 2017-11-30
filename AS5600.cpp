@@ -62,15 +62,11 @@ int read_encoder()
   int angle;
   
   Wire.requestFrom(AS5600_ADDRESS, 2);
-  while (Wire.available() < 2);
     
   uint8_t msb = Wire.read();
   uint8_t lsb = Wire.read();
   angle = ((msb & 0b00001111) << 8) + lsb;
 
-  while(Wire.available()) {
-    Wire.read(); // garbage
-  }
   return angle;  
 }
 
