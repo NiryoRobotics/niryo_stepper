@@ -33,4 +33,6 @@ int mod(int xMod, int mMod);
 
 void output(long theta, int effort);
 
+void relaxed_mode_with_resistance();
+
 #endif

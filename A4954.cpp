@@ -75,3 +75,17 @@ void output(long theta, int effort) {
     IN_3_HIGH();
   }
 }
+
+/*
+ * Setting all Pins to HIGH will
+ * give more "resistance torque" to the motor
+ * --> Useful on Niryo One so the axis of the motor
+ * doesn't fall abruptely
+ */
+void relaxed_mode_with_resistance() {
+  IN_1_HIGH();
+  IN_2_HIGH();
+  IN_3_HIGH();
+  IN_4_HIGH();
+}
+

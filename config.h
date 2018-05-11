@@ -50,6 +50,8 @@
  *    ----------- A4954 Driver -------------
  */
 
+#define KEEP_RESISTANCE_WHEN_DETACHED 1
+
 //Defines for pins:
 #define IN_1  15
 #define IN_2  17

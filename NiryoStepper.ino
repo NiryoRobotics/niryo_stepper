@@ -33,7 +33,7 @@
  * 
  */
 
-#define MOTOR_ID   2  // <-- change this value for each stepper motor (1-4) on Niryo One
+#define MOTOR_ID   1  // <-- change this value for each stepper motor (1-4) on Niryo One
 
 /*
  * 

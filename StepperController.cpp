@@ -73,7 +73,12 @@ void StepperController::attach()
 
 void StepperController::detach()
 {
-  output(-1800 * current_step_number / micro_steps, 0);
+  if (KEEP_RESISTANCE_WHEN_DETACHED) {
+    relaxed_mode_with_resistance();
+  }
+  else {
+    output(-1800 * current_step_number / micro_steps, 0);
+  }
   fan_LOW();
 }
 
