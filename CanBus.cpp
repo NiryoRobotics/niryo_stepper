@@ -50,15 +50,15 @@ void CanBus::setup()
 
 /*
  * After the motor has finished (successfully or not) its calibration,
- * a result is sent back 
+ * a result is sent back
  * 
  * (This is the only method to send back a result (from a request) by CAN bus !)
  * 
  */
-void CanBus::writeCalibrationResult(uint8_t result)
+void CanBus::writeCalibrationResult(uint8_t result, int sensor_steps)
 {
-  uint8_t data_res[] = { CAN_DATA_CALIBRATION_RESULT, result };
-  can_driver->sendMsgBuf(0x10 + motor_id, 0, 2, data_res);
+  uint8_t data_res[] = { CAN_DATA_CALIBRATION_RESULT, result, (sensor_steps >> 8) & 0xFF, sensor_steps & 0xFF };
+  can_driver->sendMsgBuf(0x10 + motor_id, 0, 4, data_res);
 }
 
 /*
@@ -173,11 +173,12 @@ void CanBus::read()
           if (data_position_offset & (1 << 15)) {
             data_position_offset = -1 * ((~data_position_offset + 1) & 0xFFFF);
           }
+
+          motor_rotation_count = 0;
+          offset = data_position_offset;
           
-          offset = motor_position_without_offset - data_position_offset;
-          
-          //SerialUSB.print("Set offset : ");
-          //SerialUSB.println(offset);
+          SerialUSB.print("Set offset : ");
+          SerialUSB.println(offset);
         }
       break;
       case CAN_CMD_CALIBRATE:
@@ -193,9 +194,13 @@ void CanBus::read()
           unsigned int delay_steps = (rxBuf[4] << 8) + rxBuf[5];
           int direction = rxBuf[6];
           long timeout = rxBuf[7];
-
+          
           uint8_t result = stepper_controller->calibrate(direction, delay_steps, data_position_offset, timeout);
-          writeCalibrationResult(result);
+          long absolute_sensor_steps = (sensor_position * stepper_controller->getMicroSteps() * STEPPER_CPR) / AS5600_CPR;
+
+          SerialUSB.print("Absolute sensor steps : ");
+          SerialUSB.println(absolute_sensor_steps);
+          writeCalibrationResult(result, (int)absolute_sensor_steps);
         }
       break;
       case CAN_CMD_SYNCHRONIZE:

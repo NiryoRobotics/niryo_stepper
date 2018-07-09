@@ -44,7 +44,7 @@ class CanBus {
 
       void setup();
 
-      void writeCalibrationResult(uint8_t result);
+      void writeCalibrationResult(uint8_t result, int sensor_steps);
       void writePosition();
       void writeDiagnostics(uint8_t control_mode, unsigned int driver_temperature);
       void writeFirmwareVersion(uint8_t major, uint8_t minor, uint8_t patch);
