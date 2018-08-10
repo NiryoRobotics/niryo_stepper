@@ -166,7 +166,7 @@ void CanBus::read()
       break;
       case CAN_CMD_OFFSET:
         {
-          if (len < 4) { break; } // pb
+          if (len < 6) { break; } // pb
           
           int32_t data_position_offset = (rxBuf[1] << 16) + (rxBuf[2] << 8) + rxBuf[3];
                     // check if negative
@@ -174,11 +174,33 @@ void CanBus::read()
             data_position_offset = -1 * ((~data_position_offset + 1) & 0xFFFF);
           }
 
-          motor_rotation_count = 0;
+          int32_t absolute_steps_at_offset_position = (rxBuf[4] << 8) + rxBuf[5];
+          long current_steps = (sensor_position * stepper_controller->getMicroSteps() * STEPPER_CPR) / AS5600_CPR;
+          int steps_half_rotation = stepper_controller->getMicroSteps() * STEPPER_CPR / 2;
+
+          if (absolute_steps_at_offset_position < steps_half_rotation) {
+            if (current_steps > absolute_steps_at_offset_position + steps_half_rotation) {
+              motor_rotation_count = -1;
+            }
+            else {
+              motor_rotation_count = 0;
+            }
+          }
+          else if (absolute_steps_at_offset_position > steps_half_rotation) {
+            if (current_steps < absolute_steps_at_offset_position - steps_half_rotation) {
+              motor_rotation_count = 1;
+            }
+            else {
+              motor_rotation_count = 0;
+            }
+          }
+
           offset = data_position_offset;
-          
+
           SerialUSB.print("Set offset : ");
           SerialUSB.println(offset);
+          SerialUSB.print("New motor rotation count : ");
+          SerialUSB.println(motor_rotation_count);
         }
       break;
       case CAN_CMD_CALIBRATE:
